@@ -182,6 +182,14 @@
             padding-top: 10px;
             border-top: 1px solid #ddd;
         }
+
+        @media print {
+            
+
+            .break-page {
+                page-break-before: always; /* Força quebra de página antes de artigos relacionados, se necessário */
+            }
+        }
     </style>
 </head>
 <body>
@@ -216,7 +224,7 @@
                     
                     <p>Chapeuzinho, com seu capuz vermelho-vivo — tecido, segundo rumores, com fios encantados que brilhavam sob a luz da lua —, atravessou o vilarejo com passos confiantes. A cesta, coberta por um pano xadrez, exalava um aroma de pães doces e geleias, mas os aldeões notaram algo peculiar: a garota carregava um olhar astuto, longe da inocência que as lendas lhe atribuem. "Ela não é o que parece", sussurrou uma vendedora de ervas, recusando-se a elaborar.</p>
                     
-                    <div class="featured-image">
+                    <div class="featured-image break-page">
                         <img src="./assets/il_1.png" alt="Chapeuzinho Vermelho atravessando o vilarejo">
                         <div class="caption">Chapeuzinho Vermelho com seu característico capuz de fios encantados, fotografada enquanto atravessava o vilarejo. Foto: Arquivo/Crônicas da Floresta</div>
                     </div>
@@ -227,7 +235,7 @@
                     
                     <p>Quando Chapeuzinho chegou à cabana, a cena parecia familiar: a avó na cama, coberta por mantas, com um lenço na cabeça. Mas algo estava errado. A voz de Matilde tremia, e seus olhos brilhavam com um tom esverdeado. "Entre, minha querida", disse ela, enquanto Lúcio, escondido entre as sombras, observava. Chapeuzinho, porém, não caiu na encenação. Com um movimento rápido, ela puxou o capuz, revelando runas tatuadas em seus braços — marcas de uma aprendiza de magia. "Chega de jogos, avó", declarou, apontando um punhal prateado. "Eu sei o que você está fazendo."</p>
                     
-                    <div class="featured-image" style="margin-top: 10px; float: left; margin-left: 0; margin-right: 20px;">
+                    <div class="featured-image break-page" style="margin-top: 10px; float: left; margin-left: 0; margin-right: 20px;">
 
                         <img src="./assets/il_2.png" alt="O confronto na cabana da floresta">
                         <div class="caption">Reconstrução artística do confronto na cabana da floresta. Matilde revelou sua verdadeira forma enquanto Chapeuzinho empunhava seu punhal. Ilustração: Thiago Ventura/Crônicas da Floresta</div>
@@ -239,7 +247,7 @@
 
                     
                     <p>Lúcio, vendo a floresta em risco com a disputa, interveio. Com um uivo que fez as árvores tremerem, ele liberou uma onda de energia primal, selando a cabana em uma barreira de espinhos. Mas Chapeuzinho foi mais rápida. Usando uma poção de teletransporte, ela escapou com o grimório, deixando Matilde e Lúcio presos. "A floresta que se vire", disse ela, antes de desaparecer em um clarão.</p>
-                    <div class="featured-image">
+                    <div class="featured-image break-page">
                         <img src="./assets/il_3.png" alt="Chapeuzinho no mercado arcano">
                         <div class="caption">Chapeuzinho Vermelho (encapuzada à direita) negociando no mercado arcano com compradores interessados nas páginas do grimório. Foto: Informante anônimo/Crônicas da Floresta</div>
                     </div>
@@ -266,7 +274,7 @@
         </footer>
     </div>
 
-    <div class="container">
+    <div class="container break-page">
         <h1>Como criei a história</h1>
         
         <ol>
