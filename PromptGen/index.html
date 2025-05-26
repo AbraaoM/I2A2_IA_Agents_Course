@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Prompts PACEF/Automat/CO-STAR</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 2.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 800px;
+        }
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        .prompt-output {
+            white-space: pre-wrap; /* Preserves whitespace and wraps text */
+            word-break: break-word; /* Breaks long words */
+        }
+        .tab-button {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem 0.5rem 0 0;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease-in-out;
+            white-space: nowrap; /* Prevents text wrapping in buttons */
+        }
+        .tab-button.active {
+            background-color: #ffffff;
+            color: #1f2937; /* Dark gray for active text */
+            border-bottom: 3px solid #176f9d; /* Updated blue color for active tab */
+        }
+        .tab-button:not(.active) {
+            background-color: #e5e7eb; /* Light gray for inactive tabs */
+            color: #6b7280; /* Medium gray for inactive text */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="./assets/logo-inovaIA.png" alt="Logo" class="mx-auto" style="max-width: 300px;">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Gerador de Prompts</h1>
+
+        <div class="flex justify-center mb-6 overflow-x-auto">
+            <button id="tab-pacef" class="tab-button active">Estratégia PACEF</button>
+            <button id="tab-automat" class="tab-button">Estratégia Automat</button>
+            <button id="tab-costar" class="tab-button">Estratégia CO-STAR</button>
+        </div>
+
+        <div id="pacef-section" class="space-y-6">
+            <div>
+                <label for="papel" class="block text-lg font-medium text-gray-700 mb-2">PAPEL</label>
+                <textarea id="papel" rows="3" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#176f9d]" placeholder="Defina a personalidade que a IA deve assumir ao te responder."></textarea>
+            </div>
+
+            <div>
+                <label for="acao" class="block text-lg font-medium text-gray-700 mb-2">AÇÃO</label>
+                <textarea id="acao" rows="3" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#176f9d]" placeholder="Peça com clareza o que você deseja."></textarea>
+            </div>
+
+            <div>
+                <label for="contexto" class="block text-lg font-medium text-gray-700 mb-2">CONTEXTO</label>
+                <textarea id="contexto" rows="3" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#176f9d]" placeholder="Explique seus motivos e pormenores."></textarea>
+            </div>
+
+            <div>
+                <label for="exemplo" class="block text-lg font-medium text-gray-700 mb-2">EXEMPLO</label>
+                <textarea id="exemplo" rows="3" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#176f9d]" placeholder="Explique como deseja a resposta."></textarea>
+            </div>
+
+            <div>
+                <label for="forma" class="block text-lg font-medium text-gray-700 mb-2">FORMA</label>
+                <textarea id="forma" rows="3" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#176f9d]" placeholder="A inteligência artificial funciona melhor quando você limita seu campo de resposta."></textarea>
+            </div>
+
+            <div class="flex items-center mt-4">
+                <input type="checkbox" id="unifyPromptPacef" class="h-5 w-5 text-[#176f9d] focus:ring-[#176f9d] border-gray-300 rounded">
+                <label for="unifyPromptPacef" class="ml-2 block text-base text-gray-900">Unificar em um parágrafo</label>
+            </div>
+        </div>
+
+        <div id="automat-section" class="space-y-6 hidden">
+            <div>
+                <label for="agirComo" class="block text-lg font-medium text-gray-700 mb-2">Agir como um…</label>
+                <textarea id="agirComo" rows="3" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#176f9d]" placeholder="Defina o papel ou persona da IA."></textarea>
+            </div>
+            <div>
+                <label for="personaPublico" class="block text-lg font-medium text-gray-700 mb-2">Persona do usuário e público</label>
+                <textarea id="personaPublico" rows="3" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#176f9d]" placeholder="Descreva a persona do usuário e o público-alvo."></textarea>
+            </div>
+            <div>
+                <label for="acaoDirecionada" class="block text-lg font-medium text-gray-700 mb-2">Ação direcionada</label>
+                <textarea id="acaoDirecionada" rows="3" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#176f9d]" placeholder="Especifique a ação principal que você deseja."></textarea>
+            </div>
+            <div>
+                <label for="definicaoSaida" class="block text-lg font-medium text-gray-700 mb-2">Definição de saída</label>
+                <textarea id="definicaoSaida" rows="3" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#176f9d]" placeholder="Descreva o formato e o conteúdo esperado da resposta."></textarea>
+            </div>
+            <div>
+                <label for="modoTonalidadeEstilo" class="block text-lg font-medium text-gray-700 mb-2">Modo / Tonalidade / Estilo</label>
+                <textarea id="modoTonalidadeEstilo" rows="3" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#176f9d]" placeholder="Defina o modo, tonalidade e estilo da resposta."></textarea>
+            </div>
+            <div>
+                <label for="casosAtipicos" class="block text-lg font-medium text-gray-700 mb-2">Casos Atípicos</label>
+                <textarea id="casosAtipicos" rows="3" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#176f9d]" placeholder="Liste quaisquer exceções ou casos especiais a serem considerados."></textarea>
+            </div>
+            <div>
+                <label for="topicosPermissoes" class="block text-lg font-medium text-gray-700 mb-2">Tópicos na lista de permissões</label>
+                <textarea id="topicosPermissoes" rows="3" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#176f9d]" placeholder="Especifique tópicos que a IA deve abordar ou se limitar."></textarea>
+            </div>
+
+            <div class="flex items-center mt-4">
+                <input type="checkbox" id="unifyPromptAutomat" class="h-5 w-5 text-[#176f9d] focus:ring-[#176f9d] border-gray-300 rounded">
+                <label for="unifyPromptAutomat" class="ml-2 block text-base text-gray-900">Unificar em um parágrafo</label>
+            </div>
+        </div>
+
+        <div id="costar-section" class="space-y-6 hidden">
+            <div>
+                <label for="costarContexto" class="block text-lg font-medium text-gray-700 mb-2">CONTEXTO</label>
+                <textarea id="costarContexto" rows="3" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#176f9d]" placeholder="Forneça ao modelo o contexto necessário. Isso o ajuda a focar na situação específica e evitar respostas irrelevantes."></textarea>
+            </div>
+            <div>
+                <label for="costarObjetivo" class="block text-lg font-medium text-gray-700 mb-2">OBJETIVO</label>
+                <textarea id="costarObjetivo" rows="3" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#176f9d]" placeholder="Diga ao modelo exatamente o que você quer que ele realize. Objetivos claros impedem que o modelo se desvie da tarefa."></textarea>
+            </div>
+            <div>
+                <label for="costarEstilo" class="block text-lg font-medium text-gray-700 mb-2">ESTILO</label>
+                <textarea id="costarEstilo" rows="3" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#176f9d]" placeholder="Defina como deseja as informações: podem ser 'técnicas e detalhadas' ou 'simples e diretas', conforme sua necessidade."></textarea>
+            </div>
+            <div>
+                <label for="costarTom" class="block text-lg font-medium text-gray-700 mb-2">TOM</label>
+                <textarea id="costarTom" rows="3" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#176f9d]" placeholder="Defina a qualidade emocional da resposta."></textarea>
+            </div>
+            <div>
+                <label for="costarAudiencia" class="block text-lg font-medium text-gray-700 mb-2">AUDIÊNCIA</label>
+                <textarea id="costarAudiencia" rows="3" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#176f9d]" placeholder="Identifique quem lerá ou usará esta saída."></textarea>
+            </div>
+            <div>
+                <label for="costarResposta" class="block text-lg font-medium text-gray-700 mb-2">RESPOSTA</label>
+                <textarea id="costarResposta" rows="3" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#176f9d]" placeholder="Defina o formato que você precisa."></textarea>
+            </div>
+
+            <div class="flex items-center mt-4">
+                <input type="checkbox" id="unifyPromptCostar" class="h-5 w-5 text-[#176f9d] focus:ring-[#176f9d] border-gray-300 rounded">
+                <label for="unifyPromptCostar" class="ml-2 block text-base text-gray-900">Unificar em um parágrafo</label>
+            </div>
+        </div>
+
+        <button id="generatePrompt" class="w-full bg-[#176f9d] text-white py-3 rounded-lg font-semibold text-lg hover:bg-[#125c84] transition duration-300 ease-in-out shadow-md mt-6">Gerar Prompt</button>
+
+        <div id="outputSection" class="mt-8 p-6 bg-gray-50 border border-gray-200 rounded-lg hidden">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Seu Prompt Gerado:</h2>
+            <div id="promptOutput" class="prompt-output bg-white p-4 border border-gray-300 rounded-lg text-gray-800 text-sm overflow-auto max-h-96"></div>
+            <div class="mt-4 flex flex-col sm:flex-row gap-4">
+                <button id="copyPrompt" class="flex-1 bg-green-600 text-white py-2 rounded-lg font-semibold hover:bg-green-700 transition duration-300 ease-in-out shadow-md">Copiar Prompt</button>
+                <button id="downloadPrompt" class="flex-1 bg-purple-600 text-white py-2 rounded-lg font-semibold hover:bg-purple-700 transition duration-300 ease-in-out shadow-md">Baixar Prompt (Markdown)</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // PACEF elements
+            const papelInput = document.getElementById('papel');
+            const acaoInput = document.getElementById('acao');
+            const contextoInput = document.getElementById('contexto');
+            const exemploInput = document.getElementById('exemplo');
+            const formaInput = document.getElementById('forma');
+            const unifyPromptPacefCheckbox = document.getElementById('unifyPromptPacef');
+
+            // Automat elements
+            const agirComoInput = document.getElementById('agirComo');
+            const personaPublicoInput = document.getElementById('personaPublico');
+            const acaoDirecionadaInput = document.getElementById('acaoDirecionada');
+            const definicaoSaidaInput = document.getElementById('definicaoSaida');
+            const modoTonalidadeEstiloInput = document.getElementById('modoTonalidadeEstilo');
+            const casosAtipicosInput = document.getElementById('casosAtipicos');
+            const topicosPermissoesInput = document.getElementById('topicosPermissoes');
+            const unifyPromptAutomatCheckbox = document.getElementById('unifyPromptAutomat');
+
+            // CO-STAR elements
+            const costarContextoInput = document.getElementById('costarContexto');
+            const costarObjetivoInput = document.getElementById('costarObjetivo');
+            const costarEstiloInput = document.getElementById('costarEstilo');
+            const costarTomInput = document.getElementById('costarTom');
+            const costarAudienciaInput = document.getElementById('costarAudiencia');
+            const costarRespostaInput = document.getElementById('costarResposta');
+            const unifyPromptCostarCheckbox = document.getElementById('unifyPromptCostar');
+
+            // Tab elements
+            const tabPacef = document.getElementById('tab-pacef');
+            const tabAutomat = document.getElementById('tab-automat');
+            const tabCostar = document.getElementById('tab-costar');
+            const pacefSection = document.getElementById('pacef-section');
+            const automatSection = document.getElementById('automat-section');
+            const costarSection = document.getElementById('costar-section');
+
+            const generateButton = document.getElementById('generatePrompt');
+            const promptOutputDiv = document.getElementById('promptOutput');
+            const outputSection = document.getElementById('outputSection');
+            const copyButton = document.getElementById('copyPrompt');
+            const downloadButton = document.getElementById('downloadPrompt');
+
+            let activeTab = 'pacef'; // Default active tab
+
+            // Function to switch tabs
+            function switchTab(tabName) {
+                activeTab = tabName;
+                // Deactivate all tabs and hide all sections
+                tabPacef.classList.remove('active');
+                tabAutomat.classList.remove('active');
+                tabCostar.classList.remove('active');
+                pacefSection.classList.add('hidden');
+                automatSection.classList.add('hidden');
+                costarSection.classList.add('hidden');
+
+                // Activate the selected tab and show its section
+                if (tabName === 'pacef') {
+                    tabPacef.classList.add('active');
+                    pacefSection.classList.remove('hidden');
+                } else if (tabName === 'automat') {
+                    tabAutomat.classList.add('active');
+                    automatSection.classList.remove('hidden');
+                } else if (tabName === 'costar') {
+                    tabCostar.classList.add('active');
+                    costarSection.classList.remove('hidden');
+                }
+                // Clear output when switching tabs
+                promptOutputDiv.textContent = '';
+                outputSection.classList.add('hidden');
+            }
+
+            // Event listeners for tab buttons
+            tabPacef.addEventListener('click', () => switchTab('pacef'));
+            tabAutomat.addEventListener('click', () => switchTab('automat'));
+            tabCostar.addEventListener('click', () => switchTab('costar'));
+
+            generateButton.addEventListener('click', () => {
+                let prompt = '';
+
+                if (activeTab === 'pacef') {
+                    const papel = papelInput.value.trim();
+                    const acao = acaoInput.value.trim();
+                    const contexto = contextoInput.value.trim();
+                    const exemplo = exemploInput.value.trim();
+                    const forma = formaInput.value.trim();
+                    const unify = unifyPromptPacefCheckbox.checked;
+
+                    if (unify) {
+                        const parts = [papel, acao, contexto, exemplo, forma].filter(part => part !== '');
+                        prompt = parts.join(' ').trim();
+                    } else {
+                        if (papel) prompt += `## PAPEL\n${papel}\n\n`;
+                        if (acao) prompt += `## AÇÃO\n${acao}\n\n`;
+                        if (contexto) prompt += `## CONTEXTO\n${contexto}\n\n`;
+                        if (exemplo) prompt += `## EXEMPLO\n${exemplo}\n\n`;
+                        if (forma) prompt += `## FORMA\n${forma}\n\n`;
+                    }
+                } else if (activeTab === 'automat') {
+                    const agirComo = agirComoInput.value.trim();
+                    const personaPublico = personaPublicoInput.value.trim();
+                    const acaoDirecionada = acaoDirecionadaInput.value.trim();
+                    const definicaoSaida = definicaoSaidaInput.value.trim();
+                    const modoTonalidadeEstilo = modoTonalidadeEstiloInput.value.trim();
+                    const casosAtipicos = casosAtipicosInput.value.trim();
+                    const topicosPermissoes = topicosPermissoesInput.value.trim();
+                    const unify = unifyPromptAutomatCheckbox.checked;
+
+                    if (unify) {
+                        const parts = [
+                            agirComo ? `Agir como um: ${agirComo}` : '',
+                            personaPublico ? `Persona do usuário e público: ${personaPublico}` : '',
+                            acaoDirecionada ? `Ação direcionada: ${acaoDirecionada}` : '',
+                            definicaoSaida ? `Definição de saída: ${definicaoSaida}` : '',
+                            modoTonalidadeEstilo ? `Modo / Tonalidade / Estilo: ${modoTonalidadeEstilo}` : '',
+                            casosAtipicos ? `Casos Atípicos: ${casosAtipicos}` : '',
+                            topicosPermissoes ? `Tópicos na lista de permissões: ${topicosPermissoes}` : ''
+                        ].filter(part => part !== '');
+                        prompt = parts.join(' ').trim();
+                    } else {
+                        if (agirComo) prompt += `## Agir como um:\n${agirComo}\n\n`;
+                        if (personaPublico) prompt += `## Persona do usuário e público:\n${personaPublico}\n\n`;
+                        if (acaoDirecionada) prompt += `## Ação direcionada:\n${acaoDirecionada}\n\n`;
+                        if (definicaoSaida) prompt += `## Definição de saída:\n${definicaoSaida}\n\n`;
+                        if (modoTonalidadeEstilo) prompt += `## Modo / Tonalidade / Estilo:\n${modoTonalidadeEstilo}\n\n`;
+                        if (casosAtipicos) prompt += `## Casos Atípicos:\n${casosAtipicos}\n\n`;
+                        if (topicosPermissoes) prompt += `## Tópicos na lista de permissões:\n${topicosPermissoes}\n\n`;
+                    }
+
+                    // If all fields are empty, ensure prompt is empty
+                    if (!agirComo && !personaPublico && !acaoDirecionada && !definicaoSaida && !modoTonalidadeEstilo && !casosAtipicos && !topicosPermissoes && prompt === '') {
+                        prompt = '';
+                    }
+                } else if (activeTab === 'costar') {
+                    const costarContexto = costarContextoInput.value.trim();
+                    const costarObjetivo = costarObjetivoInput.value.trim();
+                    const costarEstilo = costarEstiloInput.value.trim();
+                    const costarTom = costarTomInput.value.trim();
+                    const costarAudiencia = costarAudienciaInput.value.trim();
+                    const costarResposta = costarRespostaInput.value.trim();
+                    const unify = unifyPromptCostarCheckbox.checked;
+
+                    if (unify) {
+                        const parts = [
+                            costarContexto ? `CONTEXTO: ${costarContexto}` : '',
+                            costarObjetivo ? `OBJETIVO: ${costarObjetivo}` : '',
+                            costarEstilo ? `ESTILO: ${costarEstilo}` : '',
+                            costarTom ? `TOM: ${costarTom}` : '',
+                            costarAudiencia ? `AUDIÊNCIA: ${costarAudiencia}` : '',
+                            costarResposta ? `RESPOSTA: ${costarResposta}` : ''
+                        ].filter(part => part !== '');
+                        prompt = parts.join(' ').trim();
+                    } else {
+                        if (costarContexto) prompt += `## CONTEXTO\n${costarContexto}\n\n`;
+                        if (costarObjetivo) prompt += `## OBJETIVO\n${costarObjetivo}\n\n`;
+                        if (costarEstilo) prompt += `## ESTILO\n${costarEstilo}\n\n`;
+                        if (costarTom) prompt += `## TOM\n${costarTom}\n\n`;
+                        if (costarAudiencia) prompt += `## AUDIÊNCIA\n${costarAudiencia}\n\n`;
+                        if (costarResposta) prompt += `## RESPOSTA\n${costarResposta}\n\n`;
+                    }
+
+                    // If all fields are empty, ensure prompt is empty
+                    if (!costarContexto && !costarObjetivo && !costarEstilo && !costarTom && !costarAudiencia && !costarResposta && prompt === '') {
+                        prompt = '';
+                    }
+                }
+
+                promptOutputDiv.textContent = prompt;
+                outputSection.classList.remove('hidden');
+            });
+
+            copyButton.addEventListener('click', () => {
+                const promptText = promptOutputDiv.textContent;
+                // Using document.execCommand('copy') for better compatibility in iframes
+                const textarea = document.createElement('textarea');
+                textarea.value = promptText;
+                document.body.appendChild(textarea);
+                textarea.select();
+                try {
+                    const successful = document.execCommand('copy');
+                    const msg = successful ? 'Copiado!' : 'Falha ao copiar!';
+                    alertMessage(msg); // Using a custom alert message
+                } catch (err) {
+                    alertMessage('Erro ao copiar: ' + err);
+                }
+                document.body.removeChild(textarea);
+            });
+
+            downloadButton.addEventListener('click', () => {
+                const promptText = promptOutputDiv.textContent;
+                const blob = new Blob([promptText], { type: 'text/markdown;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'prompt_gerado.md';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            });
+
+            // Custom alert message function
+            function alertMessage(message) {
+                const messageBox = document.createElement('div');
+                messageBox.textContent = message;
+                messageBox.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    background-color: #333;
+                    color: white;
+                    padding: 10px 20px;
+                    border-radius: 8px;
+                    z-index: 1000;
+                    opacity: 0;
+                    transition: opacity 0.5s ease-in-out;
+                `;
+                document.body.appendChild(messageBox);
+
+                setTimeout(() => {
+                    messageBox.style.opacity = '1';
+                }, 10);
+
+                setTimeout(() => {
+                    messageBox.style.opacity = '0';
+                    messageBox.addEventListener('transitionend', () => messageBox.remove());
+                }, 3000);
+            }
+        });
+    </script>
+</body>
+</html>
