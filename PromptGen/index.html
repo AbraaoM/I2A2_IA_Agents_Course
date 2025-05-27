@@ -10,11 +10,12 @@
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f3f4f6;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             min-height: 100vh;
             padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
         .container {
             background-color: #ffffff;
@@ -22,7 +23,7 @@
             border-radius: 1rem;
             box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
             width: 100%;
-            max-width: 800px;
+            max-width: 900px; /* Adicione um valor máximo para não ocupar toda a tela */
         }
         textarea {
             resize: vertical;
@@ -53,7 +54,17 @@
 </head>
 <body>
     <div class="container">
-        <img src="./assets/logo-inovaIA.png" alt="Logo" class="mx-auto" style="max-width: 300px;">
+        <div class="flex justify-center">
+            <img src="./assets/logo-inovaIA.png" alt="Logo" class="mx-auto" style="max-width: 300px;">
+            <div class="my-auto" style="max-width: 700px;">
+                <h2 class=" font-bold">Projeto desenvolvido como parte de curso de agentes autônomos do instituto I2A2 e tem como objetivo simplificar a 
+                    geração de prompts utilizando os frameworks de engenharia de prompt PACEF, AUTOMAT e CO-STAR, que foram apresentados no curso.
+                </h2>
+                <br>
+                <a href="https://github.com/AbraaoM/I2A2_IA_Agents_Course">Repositório Github</a>
+            </div>
+        </div>
+        
         <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Gerador de Prompts</h1>
 
         <div class="flex justify-center mb-6 overflow-x-auto">
@@ -405,5 +416,9 @@
             }
         });
     </script>
+    <footer class="mt-8 text-center text-gray-600 text-sm">
+        <p>Desenvolvido por <a href="http://abraaomoreira.dev" class="text-blue-600 hover:underline">Abraão Moreira</a> - 2025</p>
+    </footer>
 </body>
+
 </html>
