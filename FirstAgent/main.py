@@ -1,73 +1,53 @@
-import os
-from dotenv import load_dotenv
+from langchain_core.prompts import ChatPromptTemplate
 from langchain_groq import ChatGroq
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain_core.runnables.history import RunnableWithMessagesHistory
-from langchain_core.chat_history import BaseChatMessageHistory
-from langchain_community.chat_message_histories import ChatMessageHistory
+from dotenv import load_dotenv
+import os
+import logging
 
-from tools.extract_zip_tool import extract_zip_contents
+# Configure logging
+#logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
+# Load environment variables
 load_dotenv()
 
-template = """
-You are a helpful assistant that extracts CSV files from a zip file and preserves their original format.
+# Create a simple prompt template
+prompt = ChatPromptTemplate.from_messages([
+    ("system", "You are a helpful AI assistant that provides clear and concise answers."),
+    ("human", "{input_text}")
+])
 
-histótico da conversa:
-{history}
-Entrada do usuário:
-{input}
-"""
-
-prompt = ChatPromptTemplate.from_messages(
-    [
-        ("system", template),
-        MessagesPlaceholder(variable_name="history"),
-        ("human", "{input}"),
-    ]
+# Initialize the model
+model = ChatGroq(
+    api_key=os.getenv('GROQ_API_KEY'),
+    temperature=0.7,
+    model="meta-llama/llama-4-scout-17b-16e-instruct"
 )
 
-llm = ChatGroq(
-    model="meta-llama/llama-4-scout-17b-16e-instruct",
-    temperature=0.5
-)
+# Create the chain using LCEL
+chain = prompt | model
 
-chain = prompt | llm
-
-store = {}
-
-def get_session_history(session_id: str) -> BaseChatMessageHistory:
-    if session_id not in store:
-        store[session_id] = ChatMessageHistory()
-    return store[session_id]
-
-chain_with_history = RunnableWithMessagesHistory(
-    runnable=chain,
-    chat_history=get_session_history("default_session"),
-    input_message_key="input",
-    history_messages_key="history"
-)
-
-
-def start():
-    print("Starting the assistant...")
+def chat():
+    print("Simple Chat (type 'quit' to exit)")
+    print("---------------------------------")
+    
     while True:
-        user_input = input("You: ")
-        if user_input.lower() in ["exit", "quit"]:
-            print("Exiting the assistant.")
+        # Get user input
+        user_input = input("\nYou: ").strip()
+        
+        # Check for quit command
+        if user_input.lower() in ['quit', 'exit', 'q']:
+            print("\nGoodbye!")
             break
-        
-        # Simulate a session ID for this example
-        session_id = "default_session"
-        
-        # Run the chain with the user input
-        response = chain_with_history.invoke({"input": user_input, "session_id": session_id})
-        
-        # Print the response from the assistant
-        print(f"Assistant: {response['output']}")
-
+            
+        try:
+            # Get response from model
+            response = chain.invoke({"input_text": user_input})
+            print(f"\nAssistant: {response.content}")
+            
+        except Exception as e:
+            logger.error(f"Error: {str(e)}")
+            print("Sorry, I encountered an error. Please try again.")
 
 if __name__ == "__main__":
-    start()
-
-# print(extract_zip_contents("resources/202401_NFs.zip"))
+    chat()
