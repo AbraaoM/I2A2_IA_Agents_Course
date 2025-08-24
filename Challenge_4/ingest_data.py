@@ -24,10 +24,22 @@ def process_admissao_abril(dfs, df_key="ADMISSÃO ABRIL"):
         df = df.rename(columns={last_col: "Observações"})
         dfs[df_key] = df
 
+def process_base_dias_uteis(dfs, df_key="Base dias uteis"):
+    if df_key in dfs:
+        df = dfs[df_key]
+        new_headers = df.iloc[0]
+        df.columns = new_headers
+        df = df.drop(df.index[[0,1]]).reset_index(drop=True)
+        dfs[df_key] = df
+    return
+
+
+
 if __name__ == "__main__":
     dfs = ingest_excel_files()
     process_admissao_abril(dfs, df_key="ADMISSÃO ABRIL")
-    print(dfs["ADMISSÃO ABRIL"])
+    process_base_dias_uteis(dfs, df_key="Base dias uteis")
+    print(dfs["Base dias uteis"])
 
 #    for name, df in dfs.items():
  #       print(f"DataFrame '{name}':")
