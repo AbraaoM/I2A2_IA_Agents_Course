@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+import unicodedata
 
 def ingest_excel_files(input_dir="input_data") -> dict[str, pd.DataFrame]:
     dataframes = {}
@@ -43,15 +44,46 @@ def process_vr_mensal(dfs: dict[str, pd.DataFrame], df_key="VR MENSAL 05.2025"):
     
         # Cria um DataFrame vazio com o mesmo cabeçalho
         df = pd.DataFrame(columns=df.columns)
+        normalize_headers_df(df)
+
         dfs["vr mensal"] = df
+
+def matriculas_vr_mensal(dfs: dict[str, pd.DataFrame], matricula_col="MATRICULA", vr_key="vr mensal"):
+    if vr_key not in dfs:
+        print(f"DataFrame '{vr_key}' não encontrado.")
+        return
+
+    vr_df = dfs[vr_key]
+    # Percorre todos os outros DataFrames
+    for key, df in dfs.items():
+        if key == vr_key:
+            continue
+        if matricula_col in df.columns:
+            # Cria um DataFrame apenas com as matrículas
+            matriculas_df = pd.DataFrame(df[matricula_col])
+            vr_df = pd.concat([vr_df, matriculas_df], ignore_index=True)
+    # Remove duplicatas
+    vr_df = vr_df.drop_duplicates(subset=[matricula_col]).reset_index(drop=True)
+    dfs[vr_key] = vr_df
+
+def normalize_headers_df(df: pd.DataFrame) -> pd.DataFrame:
+    new_cols = []
+    for col in df.columns:
+        col_norm = unicodedata.normalize('NFKD', str(col)).encode('ASCII', 'ignore').decode('ASCII')
+        new_cols.append(col_norm.upper())
+    df.columns = new_cols
+    return df
 
 if __name__ == "__main__":
     dfs = ingest_excel_files()
     process_admissao_abril(dfs)
     process_base_dias_uteis(dfs)
     process_vr_mensal(dfs)
+    matriculas_vr_mensal(dfs)
+    
+    print(dfs["vr mensal"])
 
-    for name, df in dfs.items():
-      print(f"DataFrame '{name}':")
-      print(df.head())
-      print("-" * 40)
+    #for name, df in dfs.items():
+     # print(f"DataFrame '{name}':")
+      #print(df.head())
+      #print("-" * 40)
