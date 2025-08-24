@@ -33,16 +33,25 @@ def process_base_dias_uteis(dfs: dict[str, pd.DataFrame], df_key="Base dias utei
         dfs[df_key] = df
     return
 
-
+def process_vr_mensal(dfs: dict[str, pd.DataFrame], df_key="VR MENSAL 05.2025"):
+    if df_key in dfs:
+        df = dfs[df_key]
+        new_headers = df.iloc[0]
+        df.columns = new_headers
+        df = df.drop(df.index[[0,1]]).reset_index(drop=True)
+        dfs[df_key] = df
+    
+        # Cria um DataFrame vazio com o mesmo cabeçalho
+        df = pd.DataFrame(columns=df.columns)
+        dfs["vr mensal"] = df
 
 if __name__ == "__main__":
     dfs = ingest_excel_files()
-    process_admissao_abril(dfs, df_key="ADMISSÃO ABRIL")
-    process_base_dias_uteis(dfs, df_key="Base dias uteis")
-    df = dfs["Base sindicato x valor"]
-    print(df.columns)
+    process_admissao_abril(dfs)
+    process_base_dias_uteis(dfs)
+    process_vr_mensal(dfs)
 
     for name, df in dfs.items():
       print(f"DataFrame '{name}':")
-      #print(df.head())
-      #print("-" * 40)
+      print(df.head())
+      print("-" * 40)
