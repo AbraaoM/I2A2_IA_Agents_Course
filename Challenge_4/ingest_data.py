@@ -74,16 +74,11 @@ def normalize_headers_df(df: pd.DataFrame) -> pd.DataFrame:
     df.columns = new_cols
     return df
 
-if __name__ == "__main__":
+def ingest_data():
     dfs = ingest_excel_files()
     process_admissao_abril(dfs)
     process_base_dias_uteis(dfs)
     process_vr_mensal(dfs)
     matriculas_vr_mensal(dfs)
     
-    print(dfs["vr mensal"])
-
-    #for name, df in dfs.items():
-     # print(f"DataFrame '{name}':")
-      #print(df.head())
-      #print("-" * 40)
+    return (dfs["vr mensal"])
