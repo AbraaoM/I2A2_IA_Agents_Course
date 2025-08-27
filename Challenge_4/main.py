@@ -1,8 +1,10 @@
 from ingest_data import ingest_data
-from ai_agent.agent_config import get_agent
+from ai_agent.agent_process import agent_process
+from singletons import dataframes
 
 
 if __name__ == "__main__":
     dfs = ingest_data()
-    agent = get_agent(dfs["vr mensal"])
-    print(agent.run("Quais são as 5 primeiras matrículas?"))
+    dataframes.dataframes = dfs
+    response = agent_process()
+    print(response)
