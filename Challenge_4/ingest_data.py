@@ -81,4 +81,4 @@ def ingest_data():
     process_vr_mensal(dfs)
     matriculas_vr_mensal(dfs)
     
-    return (dfs["vr mensal"])
+    return (dfs)
