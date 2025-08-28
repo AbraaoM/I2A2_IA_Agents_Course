@@ -32,7 +32,7 @@ def get_agent(tools: list) -> AgentExecutor:
     # 2. Criar o Prompt do agente
     prompt = ChatPromptTemplate.from_messages(
         [
-            ("system", "Você é um assistente de IA útil que tem acesso a diversas ferramentas. Use-as para responder às perguntas do usuário. Responda de forma concisa e útil."),
+            ("system", "Você é um assistente de IA que DEVE usar as ferramentas disponíveis para responder a qualquer pergunta. SEMPRE use uma ferramenta antes de dar uma resposta. Nunca responda sem usar pelo menos uma ferramenta."),
             ("user", "{input}"),
             ("placeholder", "{agent_scratchpad}"),
         ]
@@ -42,6 +42,12 @@ def get_agent(tools: list) -> AgentExecutor:
     agent = create_tool_calling_agent(llm, tools, prompt)
 
     # 4. Criar o executor do agente
-    agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
+    agent_executor = AgentExecutor(
+        agent=agent, 
+        tools=tools, 
+        verbose=False,
+        max_iterations=10,
+        handle_parsing_errors=True
+    )
 
     return agent_executor
