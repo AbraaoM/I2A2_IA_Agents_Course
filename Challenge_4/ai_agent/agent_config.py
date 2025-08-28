@@ -46,7 +46,7 @@ def get_agent(tools: list) -> AgentExecutor:
         agent=agent, 
         tools=tools, 
         verbose=False,
-        max_iterations=10,
+        max_iterations=1000,
         handle_parsing_errors=True
     )
 
