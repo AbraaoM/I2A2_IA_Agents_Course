@@ -40,7 +40,24 @@ def agent_process() -> pd.DataFrame:
         gerar_planilha_excel
     ]
 
-    query = "1. utilizando a ferramenta 'consultar_admissao_abril' liste as matrículas disponíveis."
+    query = """
+    Execute as seguintes tarefas na ordem:
+
+    1. Use a ferramenta 'consultar_admissao_abril' para obter todas as matrículas disponíveis.
+
+    2. Organize as matrículas em formato CSV com cabeçalho:
+    MATRICULA
+    35741
+    35774
+    35722
+    (... todas as outras matrículas)
+
+    3. Use a ferramenta 'gerar_planilha_excel' para criar uma planilha Excel com os dados organizados.
+       - Nome do arquivo: "matriculas_admissao_abril"
+       - Formato: uma matrícula por linha
+
+    Execute AMBAS as ferramentas para completar a tarefa.
+    """
 
     agent = get_agent(tools)
 
