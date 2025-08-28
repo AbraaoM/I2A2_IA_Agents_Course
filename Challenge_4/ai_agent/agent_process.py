@@ -10,10 +10,7 @@ def agent_process() -> pd.DataFrame:
         response_to_df
     ]
 
-    query_matriculas = "" \
-    "1. utilizando a ferramenta 'consultar_admissao_abril' liste as matrículas disponíveis." \
-    "2. organize a resposta em formato tabular." \
-    "3. utilizando a ferramenta 'response_to_df' converta a resposta em um DataFrame."
+    query_matriculas = "1. utilizando a ferramenta 'consultar_admissao_abril' liste as matrículas disponíveis."
 
     agent = get_agent(tools)
 
