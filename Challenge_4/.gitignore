@@ -1,4 +1,5 @@
 /input_data/*
+/output/*
 
 # Python
 __pycache__/
