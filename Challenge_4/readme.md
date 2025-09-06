@@ -47,6 +47,8 @@ Coloque os arquivos Excel na pasta `input_data/`:
 - `AFASTAMENTOS.xlsx` - Lista de afastamentos
 - Outros arquivos conforme necessário
 
+> **Nota**: Se a pasta não existir, ela deve ser criada
+
 ## 🚀 Como Executar
 
 ### Execução Única
