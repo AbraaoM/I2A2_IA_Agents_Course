@@ -1,62 +1,37 @@
-from ai_agent.tools.processment import (
-    consultar_admissao_abril,
-    consultar_afastamentos,
-    consultar_aprendiz,
-    consultar_ativos,
-    consultar_base_dias_uteis,
-    consultar_base_sindicato_valor,
-    consultar_desligados,
-    consultar_estagio,
-    consultar_exterior,
-    consultar_ferias,
-    consultar_vr_mensal
-)
-from ai_agent.tools.utils import (
-    response_to_df,
-    df_to_excel,
-    df_to_csv,
-    gerar_planilha_excel
-)
 from ai_agent.agent_config import get_agent
 import pandas as pd
+from ai_agent.tools.admissao_abril import read_admissao_abril
+from ai_agent.tools.afastamentos import read_afastamentos
+from ai_agent.tools.aprendiz import read_aprendiz
+from ai_agent.tools.ativos import read_ativos
+from ai_agent.tools.base_dias_uteis import read_base_dias_uteis
+from ai_agent.tools.base_sindicato_valor import read_base_sindicato_valor
+from ai_agent.tools.desligados import read_desligados
+from ai_agent.tools.estagio import read_estagio
+from ai_agent.tools.exterior import read_exterior
+from ai_agent.tools.ferias import read_ferias
+from ai_agent.tools.utils import generate_vr_mensal_excel
+from ai_agent.tools.vr_mensal import read_vr_mensal, add_vr_mensal
 
 def agent_process() -> pd.DataFrame:
 
     tools = [
-        consultar_admissao_abril,
-        consultar_afastamentos,
-        consultar_aprendiz,
-        consultar_ativos,
-        consultar_base_dias_uteis,
-        consultar_base_sindicato_valor,
-        consultar_desligados,
-        consultar_estagio,
-        consultar_exterior,
-        consultar_ferias,
-        consultar_vr_mensal,
-        response_to_df,
-        df_to_excel,
-        df_to_csv,
-        gerar_planilha_excel
+        read_admissao_abril,
+        read_afastamentos,
+        read_aprendiz,
+        read_ativos,
+        read_base_dias_uteis,
+        read_base_sindicato_valor,
+        read_desligados,
+        read_estagio,
+        read_exterior,
+        read_ferias,
+        read_vr_mensal,
+        add_vr_mensal,
+        generate_vr_mensal_excel
     ]
 
     query = """
-            1. Crie um dataframe com as seguintes colunas:
-            * Matrícula
-            * Admissão
-            * Sindicato do Colaborador
-            * Competência
-            * Dias
-            * VALOR DIÁRIO VR
-            * TOTAL
-            * Custo empresa
-            * Desconto profissional
-            * OBS GERAL
-
-            Se necessário preencha as colunas com uma string vazia.
-
-            2. Utilizando a tool gerar_planilha_excel: 
-            crie uma planilha excel com o nome "VR MENSAL 05.2025.xlsx" a partir do dataframe criado no passo 1.
             
             """
 
