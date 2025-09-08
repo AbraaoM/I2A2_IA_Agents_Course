@@ -76,52 +76,23 @@ def process_base_dias_uteis(dfs: dict[DataFrameKeys, pd.DataFrame]):
 
 def process_vr_mensal(dfs: dict[DataFrameKeys, pd.DataFrame]):
     """
-    Processa o DataFrame de VR mensal.
+    Processa o DataFrame de VR mensal, mantendo apenas o header.
     """
     df_key = "vr_mensal"
     if df_key in dfs:
         df = dfs[df_key]
+        
+        # Pegar apenas o header (primeira linha como colunas)
         new_headers = df.iloc[0]
-        df.columns = new_headers
-        df = df.drop(df.index[[0,1]]).reset_index(drop=True)
+        
+        # Criar DataFrame vazio com apenas o header
+        df_empty = pd.DataFrame(columns=new_headers)
         
         # Normalizar headers
-        df = normalize_headers_df(df)
+        df_empty = normalize_headers_df(df_empty)
         
-        dfs[df_key] = df
-        print(f"📝 Processado: {df_key}")
-
-def matriculas_vr_mensal(dfs: dict[DataFrameKeys, pd.DataFrame], matricula_col="MATRICULA"):
-    """
-    Consolida matrículas de todos os DataFrames no VR mensal.
-    """
-    vr_key = "vr_mensal"
-    if vr_key not in dfs:
-        print(f"DataFrame '{vr_key}' não encontrado.")
-        return
-
-    vr_df = dfs[vr_key].copy()
-    
-    # Percorre todos os outros DataFrames
-    for key, df in dfs.items():
-        if key == vr_key:
-            continue
-        
-        # Normalizar headers do DataFrame atual
-        df_normalized = normalize_headers_df(df.copy())
-        
-        if matricula_col in df_normalized.columns:
-            # Cria um DataFrame apenas com as matrículas válidas
-            matriculas_validas = df_normalized[df_normalized[matricula_col] != ''][matricula_col]
-            if not matriculas_validas.empty:
-                matriculas_df = pd.DataFrame({matricula_col: matriculas_validas})
-                vr_df = pd.concat([vr_df, matriculas_df], ignore_index=True)
-    
-    # Remove duplicatas
-    if matricula_col in vr_df.columns:
-        vr_df = vr_df.drop_duplicates(subset=[matricula_col]).reset_index(drop=True)
-        dfs[vr_key] = vr_df
-        print(f"🔄 Duplicatas removidas em {vr_key} ({vr_df.shape[0]} linhas únicas)")
+        dfs[df_key] = df_empty
+        print(f"📝 Processado: {df_key} (apenas header - DataFrame vazio)")
 
 def normalize_headers_df(df: pd.DataFrame) -> pd.DataFrame:
     new_cols = []
@@ -131,11 +102,20 @@ def normalize_headers_df(df: pd.DataFrame) -> pd.DataFrame:
     df.columns = new_cols
     return df
 
+def process_ativos(dfs: dict[DataFrameKeys, pd.DataFrame]):
+    """
+    Função principal para ingestão e processamento dos dados.
+    """
+    df = normalize_headers_df(dfs["ativos"])
+    dfs["ativos"] = df
+    return dfs
+
 def ingest_data():
     dfs = ingest_excel_files()
     process_admissao_abril(dfs)
     process_base_dias_uteis(dfs)
     process_vr_mensal(dfs)
-    matriculas_vr_mensal(dfs)
+    # matriculas_vr_mensal(dfs)
+    # process_ativos(dfs)
     
     return (dfs)

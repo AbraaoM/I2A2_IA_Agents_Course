@@ -7,8 +7,9 @@ if __name__ == "__main__":
     # Carregar os dados
     print("Carregando dados...")
     dfs = ingest_data()
-    print(dfs["ativos"])
     dataframes.dataframes = dfs
+
+    print(dataframes.dataframes["vr_mensal"])
     
     # Obter relatório mensal usando o agente
     # print("Gerando relatório mensal com agente...")
