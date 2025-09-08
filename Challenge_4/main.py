@@ -7,10 +7,11 @@ if __name__ == "__main__":
     # Carregar os dados
     print("Carregando dados...")
     dfs = ingest_data()
+    print(dfs["ativos"])
     dataframes.dataframes = dfs
     
     # Obter relatório mensal usando o agente
-    print("Gerando relatório mensal com agente...")
-    response = agent_process()
+    # print("Gerando relatório mensal com agente...")
+    # response = agent_process()
 
-    print(response)
+    # print(response)

@@ -1,5 +1,5 @@
 import pandas as pd
 
-from types.DataFrameKeys import DataFrameKeys 
+from models.DataFrameKeys import DataFrameKeys 
 
 dataframes: dict[DataFrameKeys, pd.DataFrame] = {}
