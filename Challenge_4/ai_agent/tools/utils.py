@@ -18,7 +18,7 @@ def generate_vr_mensal_excel() -> str:
             return "Erro: DataFrame VR MENSAL está vazio."
         
         # Nome fixo do arquivo
-        filename = "VR MENSAL 05.2025.xlsx"
+        filename = "output/VR MENSAL 05.2025.xlsx"
         
         # Salva o DataFrame como um arquivo Excel
         df.to_excel(filename, index=False)
