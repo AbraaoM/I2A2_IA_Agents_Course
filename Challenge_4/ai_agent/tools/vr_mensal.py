@@ -14,14 +14,14 @@ def read_vr_mensal(query: str) -> str:
 @tool
 def add_vr_mensal(
     matricula: int,
-    admissao: str,
-    sindicato_colaborador: str,
-    competencia: str,
-    dias: int,
-    valor_diario_vr: float,
-    total: float,
-    custo_empresa: float,
-    desconto_profissional: float,
+    admissao: str = "",
+    sindicato_colaborador: str = "",
+    competencia: str = "05/2025",
+    dias: int = 0,
+    valor_diario_vr: float = 0.0,
+    total: float = 0.0,
+    custo_empresa: float = 0.0,
+    desconto_profissional: float = 0.0,
     obs_geral: Optional[str] = None
 ) -> str:
     """
@@ -98,14 +98,14 @@ def add_vr_mensal(
         new_row = {
             'MATRICULA': matricula,
             'ADMISSAO': admissao,
-            'SINDICATO_COLABORADOR': sindicato_colaborador,
+            'SINDICATO DO COLABORADOR': sindicato_colaborador,
             'COMPETENCIA': competencia,
             'DIAS': dias,
-            'VALOR_DIARIO_VR': valor_diario_vr,
+            'VALOR DIARIO VR': valor_diario_vr,
             'TOTAL': total,
-            'CUSTO_EMPRESA': custo_empresa,
-            'DESCONTO_PROFISSIONAL': desconto_profissional,
-            'OBS_GERAL': obs_geral
+            'CUSTO EMPRESA': custo_empresa,
+            'DESCONTO PROFISSIONAL': desconto_profissional,
+            'OBS GERAL': obs_geral
         }
         
         # Verificar se já existe registro para a mesma matrícula e competência
