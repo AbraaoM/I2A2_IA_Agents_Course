@@ -116,6 +116,6 @@ def ingest_data():
     process_base_dias_uteis(dfs)
     process_vr_mensal(dfs)
     # matriculas_vr_mensal(dfs)
-    # process_ativos(dfs)
+    process_ativos(dfs)
     
     return (dfs)
