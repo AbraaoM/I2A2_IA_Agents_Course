@@ -1,10 +1,29 @@
 from langchain_core.tools import tool
-from ai_agent.agent_config import get_df_agent
 from singletons import dataframes
 
 @tool
-def read_admissao_abril(query: str) -> str:
-    """Consulta informações no DataFrame ADMISSÃO ABRIL."""
-    df = dataframes.dataframes["admissao_abril"]
-    agent = get_df_agent(df)
-    return agent.run({"input": query})
+def read_admissao_abril_all() -> str:
+    """Lê todos os registros do DataFrame ADMISSÃO ABRIL."""
+    try:
+        df = dataframes.dataframes.get("admissao_abril")
+        if df is None or df.empty:
+            return "DataFrame 'admissao_abril' não encontrado ou vazio."
+        return df.to_string()
+    except Exception as e:
+        return f"Erro ao ler admissão abril: {str(e)}"
+
+@tool
+def read_admissao_abril_by_matricula(matricula: int) -> str:
+    """Lê registro específico do DataFrame ADMISSÃO ABRIL por matrícula."""
+    try:
+        df = dataframes.dataframes.get("admissao_abril")
+        if df is None or df.empty:
+            return "DataFrame 'admissao_abril' não encontrado ou vazio."
+        
+        filtered_df = df[df['MATRICULA'] == matricula]
+        if filtered_df.empty:
+            return f"Nenhum registro encontrado para matrícula: {matricula}"
+        
+        return filtered_df.to_string()
+    except Exception as e:
+        return f"Erro ao buscar matrícula {matricula}: {str(e)}"

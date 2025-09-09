@@ -14,7 +14,7 @@ def read_vr_mensal(query: str) -> str:
 @tool
 def add_vr_mensal(
     matricula: int,
-    admissao: str = "",
+    admissao: str = "01/01/2025",
     sindicato_colaborador: str = "",
     competencia: str = "05/2025",
     dias: int = 0,
