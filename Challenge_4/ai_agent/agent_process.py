@@ -1,64 +1,34 @@
-from ai_agent.agent_config import get_agent
 import pandas as pd
-from ai_agent.tools.admissao_abril import read_admissao_abril_all, read_admissao_abril_by_matricula
-from ai_agent.tools.afastamentos import read_afastamentos
-from ai_agent.tools.aprendiz import read_aprendiz
-from ai_agent.tools.ativos import read_ativos_all, read_ativos_by_matricula
-from ai_agent.tools.base_dias_uteis import read_base_dias_uteis
-from ai_agent.tools.base_sindicato_valor import read_base_sindicato_valor
-from ai_agent.tools.desligados import read_desligados
-from ai_agent.tools.estagio import read_estagio
-from ai_agent.tools.exterior import read_exterior
-from ai_agent.tools.ferias import read_ferias
+from langchain_core.runnables import RunnableLambda
+
+from ai_agent.processors.processor_populate_vr_mensal import run_populate_vr_mensal_agent as populate_vr_mensal_agent
 from ai_agent.tools.utils import generate_vr_mensal_excel
-from ai_agent.tools.vr_mensal import read_vr_mensal, add_vr_mensal
+
 
 def agent_process() -> pd.DataFrame:
-    tools = [
-        read_ativos_all,
-        read_ativos_by_matricula,
-        read_admissao_abril_all,
-        read_admissao_abril_by_matricula,
-        add_vr_mensal,
-        generate_vr_mensal_excel
-    ]
+    
+    populate_vr_mensal = RunnableLambda(lambda x: populate_vr_mensal_agent())
+    generate_archive = RunnableLambda(lambda x: generate_vr_mensal_excel())
 
-    # query = """
-    #     Utilize a tool add_vr_mensal para adicionar os seguintes dados ao DataFrame VR_MENSAL:
-    #     Matrícula: 35727
-    #     Admissão: Busque a data de admissão usando a tool read_admissao_abril_by_matricula, se não encontrar preencher com 00/00/0000
-    #     Sindicato do Colaborador: Usando a matricula busque o sindicato usando a tool read_ativos_by_matricula
-    #     Competência: 05/2025
-    #     Dias: 22
-    #     Valor Diário VR: 25.00
-    #     Total: 550.00
-    #     Custo Empresa: 600.00
-    #     Desconto Profissional: 50.00
-    #     Obs Geral: Nenhuma observação adicional.
-    #     Após adicionar os dados, utilize a ferramenta generate_vr_mensal_excel para gerar um arquivo Excel com o conteúdo atualizado do DataFrame VR_MENSAL.
-    #     Forneça o caminho do arquivo Excel gerado como resposta.
-    #         """
+    vr_mensal_chain = populate_vr_mensal | generate_archive
 
-    query = """
-    Utilize a tool add_vr_mensal para adicionar os seguintes dados ao DataFrame VR_MENSAL:
-    Matrícula: 35727
-    Admissão: Busque a data de admissão usando a tool read_admissao_abril_by_matricula, se não encontrar preencher com string vazia
-    Sindicato do Colaborador: Usando a matricula busque o sindicato usando a tool read_ativos_by_matricula.
-    Competência: 05/2025
-    Dias: 
-    Valor Diário VR: 
-    Total: 
-    Custo Empresa: 
-    Desconto Profissional: 
-    Obs Geral: Nenhuma observação adicional.
+    # executar cadeia
+    response = vr_mensal_chain.invoke({})
 
-    Após adicionar os dados, utilize a ferramenta generate_vr_mensal_excel para gerar um arquivo Excel com o conteúdo atualizado do DataFrame VR_MENSAL.
-
-    Se não for possível adicionar os dados, explique o motivo.
-        """
-
-    agent = get_agent(tools)
-
-    response = agent.invoke({"input": query})
-
-    return response['output']
+    # debug
+    print("DEBUG: type(response) =", type(response))
+    try:
+        # se for dict com 'output'
+        if isinstance(response, dict) and 'output' in response:
+            print("DEBUG: returning response['output']")
+            return response['output']
+        # se for dict sem 'output' — retornar inteiro para inspeção
+        if isinstance(response, dict):
+            print("DEBUG: returning full dict response")
+            return response
+        # se for string (mais provável), retornar diretamente
+        print("DEBUG: returning raw response")
+        return response
+    except Exception as e:
+        print("Erro ao formatar retorno:", e)
+        return str(response)

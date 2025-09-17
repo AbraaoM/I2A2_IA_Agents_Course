@@ -1,8 +1,6 @@
-from langchain_core.tools import tool
 import os
 from singletons import dataframes
 
-@tool
 def generate_vr_mensal_excel() -> str:
     """
     Gera um arquivo Excel com os dados do DataFrame VR MENSAL.
