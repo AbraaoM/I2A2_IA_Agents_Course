@@ -5,6 +5,7 @@ from ai_agent.processors.processor_populate_vr_mensal import run_populate_vr_men
 from ai_agent.processors.processor_fill_admissoes_agent import run_fill_admissoes_agent
 from ai_agent.processors.processor_calculate_days import run_calculate_days
 from ai_agent.processors.processor_calculate_daily_cost import run_calculate_daily_cost
+from ai_agent.processors.processor_calculate_total import run_calculate_total
 
 
 def agent_process() -> pd.DataFrame:
@@ -14,5 +15,6 @@ def agent_process() -> pd.DataFrame:
     run_fill_admissoes_agent()
     run_calculate_days()
     run_calculate_daily_cost()
+    run_calculate_total()
 
-    print(dataframes.dataframes["vr_mensal"][["MATRICULA", "DIAS", "ADMISSAO", "VALOR DIARIO VR"]])
+    print(dataframes.dataframes["vr_mensal"][["MATRICULA", "DIAS", "VALOR DIARIO VR", "TOTAL"]])
