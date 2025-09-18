@@ -3,14 +3,16 @@ from langchain_core.runnables import RunnableLambda
 
 from ai_agent.processors.processor_populate_vr_mensal import run_populate_vr_mensal_agent as populate_vr_mensal_agent
 from ai_agent.tools.utils import generate_vr_mensal_excel
+from ai_agent.processors.processor_filter_vr_mensal_agent import run_filter_vr_mensal_agent
 
 
 def agent_process() -> pd.DataFrame:
     
-    populate_vr_mensal = RunnableLambda(lambda x: populate_vr_mensal_agent())
+    populate_vr_mensal = RunnableLambda(lambda x: populate_vr_mensal_agent(max_matriculas=100))
     generate_archive = RunnableLambda(lambda x: generate_vr_mensal_excel())
+    filter_vr_mensal = RunnableLambda(lambda x: run_filter_vr_mensal_agent(max_matriculas=100))
 
-    vr_mensal_chain = populate_vr_mensal | generate_archive
+    vr_mensal_chain = populate_vr_mensal | filter_vr_mensal | generate_archive
 
     # executar cadeia
     response = vr_mensal_chain.invoke({})
