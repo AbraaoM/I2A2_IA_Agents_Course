@@ -98,5 +98,4 @@ def run_populate_vr_mensal_agent(competencia: str = "05/2025"):
     # gravar de volta no singleton
     dataframes.dataframes['vr_mensal'] = vr_mensal
     print(f"Populated vr_mensal — added: {added}, updated: {updated}, total_rows: {len(vr_mensal)}")
-    print(vr_mensal)
     return {"added": added, "updated": updated, "total_rows": len(vr_mensal)}
