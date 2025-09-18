@@ -1,71 +1,79 @@
-from typing import Dict, Any
-from ai_agent.agent_config import get_agent
-from ai_agent.tools.ativos import read_ativos_all, read_ativos_by_matricula
-from ai_agent.tools.vr_mensal import read_vr_mensal, add_vr_mensal
+import pandas as pd
+
 from singletons import dataframes
 import json
 import time
+from typing import Optional
 
-def run_populate_vr_mensal_agent(competencia: str = "05/2025", max_matriculas: int = 10) -> Dict[str, Any]:
+def _detect_sindicato_col(df: pd.DataFrame) -> Optional[str]:
+    for c in df.columns:
+        if 'SINDICATO' in str(c).upper():
+            return c
+    for c in df.columns:
+        if 'SIND' in str(c).upper():
+            return c
+    return None
+
+
+def run_populate_vr_mensal_agent(competencia: str = "05/2025"):
     """
-    Agente que:
-      - obtém todas as linhas de 'ativos' (read_ativos_all),
-      - para cada matrícula com DESC_SITUACAO == 'Trabalhando' obtém sindicato (read_ativos_by_matricula),
-      - adiciona uma linha base em vr_mensal via add_vr_mensal (somente se não existir para a competência).
-    Retorna dict com status e resposta do agente.
+    Copia matricula + sindicato do DataFrame 'ativos' para 'vr_mensal'.
+    - Idempotente: não duplica matrículas.
+    - Se matrícula já existe em vr_mensal e sindicato estiver vazio, atualiza com o novo valor.
     """
-    tools = [read_ativos_all, read_ativos_by_matricula, read_vr_mensal, add_vr_mensal]
+    ativos = dataframes.dataframes.get("ativos")
+    if ativos is None or ativos.empty:
+        raise ValueError("DataFrame 'ativos' não encontrado ou vazio.")
 
-    prompt = f"""
-Use APENAS as ferramentas disponíveis. NÃO gere texto livre — apenas chamadas de ferramenta.
-Objetivo: popular o DataFrame VR_MENSAL com linhas base para competência "{competencia}".
+    vr_mensal = dataframes.dataframes.get("vr_mensal")
+    if vr_mensal is None:
+        # criar DataFrame mínimo
+        vr_mensal = pd.DataFrame(columns=['MATRICULA', 'SINDICATO DO COLABORADOR', 'COMPETENCIA'])
 
-Passos obrigatórios:
-1) Chame read_ativos_all para obter todos os ativos.
-2) Extraia MATRÍCULA e confirme que DESC_SITUACAO == "Trabalhando".
-3) Para cada matrícula (limite {max_matriculas}):
-   - Chame read_ativos_by_matricula(<matricula>) para obter dados detalhados e extrair 'Sindicato' se existir.
-   - Chame read_vr_mensal('mostrar todas as linhas') para verificar se já existe linha para essa matrícula e competência "{competencia}".
-   - Se NÃO existir, chame add_vr_mensal com TODOS os parâmetros nomeados (admissao pode ser string vazia, dias/valores zeros):
-       add_vr_mensal(
-         matricula=<MATRICULA>,
-         admissao="",
-         sindicato_colaborador="<SINDICATO>",
-         competencia="{competencia}",
-         dias=0,
-         valor_diario_vr=0.0,
-         total=0.0,
-         custo_empresa=0.0,
-         desconto_profissional=0.0,
-         obs_geral=""
-       )
-   - Se já existir, pule.
-4) Ao final, RETORNE APENAS um JSON válido com {{\"added\": [...], \"skipped\": [...]}} sem texto adicional.
-"""
+    # garantir coluna MATRICULA em vr_mensal
+    if 'MATRICULA' not in vr_mensal.columns:
+        vr_mensal['MATRICULA'] = pd.Series(dtype='Int64')
 
-    print("📌 Executando agente: populate_vr_mensal (debug ligado)")
-    print("Tools:", [t.name for t in tools])
-    print("Prompt (resumido):", prompt[:800])
+    sind_col = _detect_sindicato_col(ativos)
+    added = 0
+    updated = 0
 
-    agent = get_agent(tools)
-    start = time.time()
-    try:
-        response = agent.invoke({"input": prompt})
-        elapsed = time.time() - start
-        print(f"⏱ Agent finished in {elapsed:.2f}s")
-        out = response.get("output") if isinstance(response, dict) else str(response)
-        # tentar parsear JSON final do agente (se o agente seguiu instrução)
+    for _, row in ativos.iterrows():
+        raw_mat = row.get('MATRICULA')
+        if pd.isna(raw_mat):
+            continue
         try:
-            parsed = json.loads(out.strip())
+            matricula = int(raw_mat)
         except Exception:
-            parsed = {"raw_output": out}
-        # mostrar estado atual do vr_mensal para debug
-        try:
-            df_vr = dataframes.dataframes.get("vr_mensal")
-            print("VR_MENSAL rows:", len(df_vr) if df_vr is not None else 0)
-        except Exception as e:
-            print("Erro ao ler vr_mensal:", e)
-        return {"status": "completed", "agent_response": response, "parsed": parsed}
-    except Exception as e:
-        print("Agent error:", e)
-        return {"status": "error", "error": str(e)}
+            continue
+
+        sindicato = None
+        if sind_col:
+            val = row.get(sind_col)
+            if not pd.isna(val):
+                sindicato = str(val).strip()
+
+        # localizar existência (comparar como int)
+        exists_idx = vr_mensal.index[vr_mensal['MATRICULA'].astype('Int64') == matricula].tolist() if not vr_mensal.empty else []
+
+        if exists_idx:
+            idx = exists_idx[0]
+            # atualizar sindicato se vazio e novo disponível
+            current = vr_mensal.at[idx, 'SINDICATO DO COLABORADOR'] if 'SINDICATO DO COLABORADOR' in vr_mensal.columns else None
+            if (current is None or pd.isna(current) or str(current).strip() == "") and sindicato:
+                vr_mensal.at[idx, 'SINDICATO DO COLABORADOR'] = sindicato
+                updated += 1
+        else:
+            new_entry = {
+                'MATRICULA': matricula,
+                'SINDICATO DO COLABORADOR': sindicato,
+                'COMPETENCIA': competencia,
+            }
+            vr_mensal = pd.concat([vr_mensal, pd.DataFrame([new_entry])], ignore_index=True)
+            added += 1
+
+    # gravar de volta no singleton
+    dataframes.dataframes['vr_mensal'] = vr_mensal
+    print(f"Populated vr_mensal — added: {added}, updated: {updated}, total_rows: {len(vr_mensal)}")
+    print(vr_mensal)
+    return {"added": added, "updated": updated, "total_rows": len(vr_mensal)}
