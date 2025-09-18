@@ -14,12 +14,22 @@ def _detect_sindicato_col(df: pd.DataFrame) -> Optional[str]:
             return c
     return None
 
+def _detect_situacao_col(df: pd.DataFrame) -> Optional[str]:
+    for c in df.columns:
+        if 'DESC' in str(c).upper() and 'SITUAC' in str(c).upper():
+            return c
+    for c in df.columns:
+        if 'SITUAC' in str(c).upper() or 'SITUA' in str(c).upper():
+            return c
+    return None
 
 def run_populate_vr_mensal_agent(competencia: str = "05/2025"):
     """
     Copia matricula + sindicato do DataFrame 'ativos' para 'vr_mensal'.
     - Idempotente: não duplica matrículas.
     - Se matrícula já existe em vr_mensal e sindicato estiver vazio, atualiza com o novo valor.
+    - Somente adiciona/considera registros cujo campo de situação contenha 'trabalh' (ex.: 'Trabalhando'),
+      quando a coluna de situação existir no DataFrame 'ativos'.
     """
     ativos = dataframes.dataframes.get("ativos")
     if ativos is None or ativos.empty:
@@ -35,10 +45,23 @@ def run_populate_vr_mensal_agent(competencia: str = "05/2025"):
         vr_mensal['MATRICULA'] = pd.Series(dtype='Int64')
 
     sind_col = _detect_sindicato_col(ativos)
+    situ_col = _detect_situacao_col(ativos)
     added = 0
     updated = 0
 
     for _, row in ativos.iterrows():
+        # somente considerar se situação indicar trabalhando (se coluna existir)
+        if situ_col:
+            situ_val = row.get(situ_col)
+            if pd.isna(situ_val):
+                continue
+            try:
+                s = str(situ_val).strip().lower()
+            except Exception:
+                s = ""
+            if 'trabalh' not in s:  # filtra "Trabalhando" e variações
+                continue
+
         raw_mat = row.get('MATRICULA')
         if pd.isna(raw_mat):
             continue
