@@ -19,8 +19,8 @@ def run_calculate_share(round_digits: int = 2) -> Dict[str, Any]:
     """
     Para cada linha em vr_mensal:
       - obtém TOTAL (ou calcula como VALOR_DIARIO_VR * DIAS quando TOTAL ausente)
-      - preenche CUSTO_EMPRESA = 80% do total
-      - preenche DESCONTO_PROFISSIONAL = 20% do total
+      - preenche CUSTO EMPRESA = 80% do total
+      - preenche DESCONTO PROFISSIONAL = 20% do total
     Atualiza o singleton vr_mensal e retorna resumo.
     """
     vr = dataframes.dataframes.get("vr_mensal")
@@ -32,8 +32,8 @@ def run_calculate_share(round_digits: int = 2) -> Dict[str, Any]:
     dias_col = _find_col(vr, ["DIAS", "DIAS_UTEIS", "DIAS UTEIS"])
 
     # nomes alvo (cria se não existirem)
-    custo_col = "CUSTO_EMPRESA"
-    desconto_col = "DESCONTO_PROFISSIONAL"
+    custo_col = "CUSTO EMPRESA"
+    desconto_col = "DESCONTO PROFISSIONAL"
     if custo_col not in vr.columns:
         vr[custo_col] = 0.0
     if desconto_col not in vr.columns:
